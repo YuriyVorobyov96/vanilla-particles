@@ -159,6 +159,50 @@
 
       document.querySelector('body').appendChild(this.element);
     }
+
+    static drawBackground() {
+      this.ctx.fillStyle = properties.bgColor;
+      this.ctx.fillRect(0, 0, this.width, this.height);
+    }
+
+    static drawParticles() {
+      ParticlesContainer.forEach(particle => {
+        particle.calculateLife();
+        particle.changePosition();
+        particle.draw();
+      });
+    }
+
+    static drawLines() {
+      const line = new Line();
+  
+      for (let i = 0; i < ParticlesContainer.length(); i ++) {
+        for (let j = 0; j < ParticlesContainer.length(); j++) {
+          if (i === j) {
+            continue;
+          }
+  
+          line.setCoordinates({
+            x1: ParticlesContainer.at(i).x,
+            x2: ParticlesContainer.at(j).x,
+            y1: ParticlesContainer.at(i).y,
+            y2: ParticlesContainer.at(j).y,
+          });
+  
+          if (line.length < properties.lineLength) {
+            line.defineOpacity();
+  
+            Canvas.ctx.lineLength = '0,5';
+            Canvas.ctx.strokeStyle = `rgba(255, 40, 40, ${line.opacity})`;
+            Canvas.ctx.beginPath();
+            Canvas.ctx.moveTo(line.x1, line.y1);
+            Canvas.ctx.lineTo(line.x2, line.y2);
+            Canvas.ctx.closePath();
+            Canvas.ctx.stroke();
+          }
+        }
+      }
+    }
   }
 
   Canvas.init();
@@ -180,54 +224,10 @@
     particleLife: 70,
   };
 
-  const drawBackground = () => {
-    Canvas.ctx.fillStyle = properties.bgColor;
-    Canvas.ctx.fillRect(0, 0, Canvas.width, Canvas.height);
-  }
-
-  const drawParticles = () => {
-    ParticlesContainer.forEach(particle => {
-      particle.calculateLife();
-      particle.changePosition();
-      particle.draw();
-    });
-  }
-
-  const drawLines = () => {
-    const line = new Line();
-
-    for (let i = 0; i < ParticlesContainer.length(); i ++) {
-      for (let j = 0; j < ParticlesContainer.length(); j++) {
-        if (i === j) {
-          continue;
-        }
-
-        line.setCoordinates({
-          x1: ParticlesContainer.at(i).x,
-          x2: ParticlesContainer.at(j).x,
-          y1: ParticlesContainer.at(i).y,
-          y2: ParticlesContainer.at(j).y,
-        });
-
-        if (line.length < properties.lineLength) {
-          line.defineOpacity();
-
-          Canvas.ctx.lineLength = '0,5';
-          Canvas.ctx.strokeStyle = `rgba(255, 40, 40, ${line.opacity})`;
-          Canvas.ctx.beginPath();
-          Canvas.ctx.moveTo(line.x1, line.y1);
-          Canvas.ctx.lineTo(line.x2, line.y2);
-          Canvas.ctx.closePath();
-          Canvas.ctx.stroke();
-        }
-      }
-    }
-  }
-
   const loop = () => {
-    drawBackground();
-    drawParticles();
-    drawLines();
+    Canvas.drawBackground();
+    Canvas.drawParticles();
+    Canvas.drawLines();
     requestAnimationFrame(loop);
   }
 
