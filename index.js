@@ -11,11 +11,11 @@
     }
   
     changePosition() {
-      this.#x + this.#velocityX > width && this.#velocityX > 0 ||
+      this.#x + this.#velocityX > Canvas.width && this.#velocityX > 0 ||
         this.#x + this.#velocityX < 0 && this.#velocityX < 0 ?
           this.#velocityX *=  -1 : this.#velocityX;
   
-      this.#y + this.#velocityY > height && this.#velocityY > 0 ||
+      this.#y + this.#velocityY > Canvas.height && this.#velocityY > 0 ||
         this.#y + this.#velocityY < 0 && this.#velocityY < 0 ?
           this.#velocityY *= -1 : this.#velocityY;
   
@@ -24,12 +24,12 @@
     }
   
     draw() {
-      ctx.beginPath();
-      ctx.arc(this.#x, this.#y, properties.particleRadius, 0, Math.PI * 2);
-      ctx.closePath();
+      Canvas.ctx.beginPath();
+      Canvas.ctx.arc(this.#x, this.#y, properties.particleRadius, 0, Math.PI * 2);
+      Canvas.ctx.closePath();
   
-      ctx.fillStyle = properties.particleColor;
-      ctx.fill(); 
+      Canvas.ctx.fillStyle = properties.particleColor;
+      Canvas.ctx.fill(); 
     }
   
     calculateLife() {
@@ -45,8 +45,8 @@
     }
 
     #init() {
-      this.#x = Math.random() * width;
-      this.#y = Math.random() * height;
+      this.#x = Math.random() * Canvas.width;
+      this.#y = Math.random() * Canvas.height;
 
       this.#velocityX = this.#defaultVelocity();
       this.#velocityY = this.#defaultVelocity();
@@ -143,15 +143,31 @@
     }
   }
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  class Canvas {
+    static element;
+    static ctx;
+    static width;
+    static height;
 
-  let width = canvas.width = innerWidth;
-  let height = canvas.height = innerHeight;
+    static init() {
+      this.element = document.createElement('canvas');
+      this.ctx = this.element.getContext('2d');
+      this.element.width = innerWidth;
+      this.element.height = innerHeight;
+      this.width = innerWidth;
+      this.height = innerHeight;
+
+      document.querySelector('body').appendChild(this.element);
+    }
+  }
+
+  Canvas.init();
 
   window.onresize = () => {
-    width = canvas.width = innerWidth;
-    height = canvas.height = innerHeight;
+    Canvas.element.width = innerWidth;
+    Canvas.element.height = innerHeight;
+    Canvas.width = innerWidth;
+    Canvas.height = innerHeight;
   }
 
   const properties = {
@@ -164,11 +180,9 @@
     particleLife: 70,
   };
 
-  document.querySelector('body').appendChild(canvas);
-
   const drawBackground = () => {
-    ctx.fillStyle = properties.bgColor;
-    ctx.fillRect(0, 0, width, height);
+    Canvas.ctx.fillStyle = properties.bgColor;
+    Canvas.ctx.fillRect(0, 0, Canvas.width, Canvas.height);
   }
 
   const drawParticles = () => {
@@ -198,13 +212,13 @@
         if (line.length < properties.lineLength) {
           line.defineOpacity();
 
-          ctx.lineLength = '0,5';
-          ctx.strokeStyle = `rgba(255, 40, 40, ${line.opacity})`;
-          ctx.beginPath();
-          ctx.moveTo(line.x1, line.y1);
-          ctx.lineTo(line.x2, line.y2);
-          ctx.closePath();
-          ctx.stroke();
+          Canvas.ctx.lineLength = '0,5';
+          Canvas.ctx.strokeStyle = `rgba(255, 40, 40, ${line.opacity})`;
+          Canvas.ctx.beginPath();
+          Canvas.ctx.moveTo(line.x1, line.y1);
+          Canvas.ctx.lineTo(line.x2, line.y2);
+          Canvas.ctx.closePath();
+          Canvas.ctx.stroke();
         }
       }
     }
